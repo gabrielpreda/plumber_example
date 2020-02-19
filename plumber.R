@@ -1,5 +1,6 @@
 # plumber.R
 
+library("randomForest")
 
 #' @apiTitle Prediction service for 'virginica' iris species
 #' @apiDescription This is a small application to exemplify use of Plumber to create APIs for R service
@@ -48,7 +49,7 @@ function(spec){
 #' Classifier model - providing 2 parameters (Sepal.Length & Petal.Length) we predict if the species in 'virginica'
 #' @param sepal_length Sepal.Length
 #' @param petal_length Petal.Length
-#' @post /prediction
+#' @post /prediction_virginica
 function(req, sepal_length, petal_length){
   
   # sample only Sepal.Length & Petal.Length
@@ -69,7 +70,34 @@ function(req, sepal_length, petal_length){
   
   prediction <- predict(model, y, type="response")
   
+  #return if the species is 'virginica'
   list(is_virginica = (prediction[1] > .5))
 }
 
 
+#' Classifier model - providing 2 parameters (Sepal.Length & Petal.Length) we predict the species
+#' @param sepal_length Sepal.Length
+#' @param petal_length Petal.Length
+#' @post /prediction_class
+function(req, sepal_length, petal_length){
+  
+  # sample only Sepal.Length & Petal.Length
+  x <- iris[sample(1:nrow(iris)),c(1,3,5)]
+  
+  # train the model
+  model <- randomForest(Species ~ .,
+               data=x,
+               ntree=100)
+  
+  # prepare the set to predict
+  y = iris[sample(1:1),c(1,3,5)]
+  y$virginica <- NULL
+  y$Species <- NULL
+  y$Sepal.Length = as.numeric(sepal_length)
+  y$Petal.Length = as.numeric(petal_length)
+  
+  prediction <- predict(model, y, type="response")
+  
+  #return the species
+  list(prediction)
+}
