@@ -33,45 +33,20 @@ function(spec=""){
 #' @get /plot
 #' @png
 function(spec){
-  myData <- iris
+  irisData <- iris
   title <- "All Species"
   
   # Filter if the species was specified
   if (!missing(spec)){
     title <- paste0("Only the '", spec, "' Species")
-    myData <- subset(iris, Species == spec)
+    irisData <- subset(iris, Species == spec)
   }
   
-  plot(myData$Sepal.Length, myData$Petal.Length,
-       main=title, xlab="Sepal Length", ylab="Petal Length", col=myData$Species)
-}
-
-#' Classifier model - providing 2 parameters (Sepal.Length & Petal.Length) we predict if the species in 'virginica'
-#' @param sepal_length Sepal.Length
-#' @param petal_length Petal.Length
-#' @post /prediction_virginica
-function(req, sepal_length, petal_length){
+  plot(irisData$Sepal.Length, irisData$Petal.Length,
+       main=title, xlab="Sepal Length", ylab="Petal Length", col=irisData$Species)
   
-  # sample only Sepal.Length & Petal.Length
-  x <- iris[sample(1:nrow(iris)),c(1,3,5)]
-  
-  # train the model
-  x$virginica <- x$Species == "virginica"
-  x$Species <- NULL
-  model <- glm(virginica ~ .,
-               family = binomial(logit), data=x)
-  
-  # prepare the set to predict
-  y = iris[sample(1:1),c(1,3,5)]
-  x$virginica <- NULL
-  x$Species <- NULL
-  y$Sepal.Length = as.numeric(sepal_length)
-  y$Petal.Length = as.numeric(petal_length)
-  
-  prediction <- predict(model, y, type="response")
-  
-  #return if the species is 'virginica'
-  list(is_virginica = (prediction[1] > .5))
+  legend("topleft", legend=c("setosa", "versicolor", "virginica"), 
+                   col=c("black", "red", "green" ), lty=1, cex=0.8)
 }
 
 
@@ -85,13 +60,15 @@ function(req, sepal_length, petal_length){
   x <- iris[sample(1:nrow(iris)),c(1,3,5)]
   
   # train the model
-  model <- randomForest(Species ~ .,
-               data=x,
-               ntree=100)
+  #model <- randomForest(Species ~ .,
+  #             data=x,
+  #             ntree=100)
+  
+  model <- readRDS("model.RDS")
   
   # prepare the set to predict
   y = iris[sample(1:1),c(1,3,5)]
-  y$virginica <- NULL
+
   y$Species <- NULL
   y$Sepal.Length = as.numeric(sepal_length)
   y$Petal.Length = as.numeric(petal_length)

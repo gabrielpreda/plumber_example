@@ -7,13 +7,13 @@ The service is exposing several endpoints as following:
 * GET /status - return the status of the service
 * GET /samples - 1 parameter: spec - if provided, return this species cardinality, otherwise return all samples cardinality
 * GET /plot - 1 parameter: spec - if provided, plot only this species samples, otherwise plot all samples
-* POST /prediction_virginica - 2 parameters: sepal_length & petal_length, predict if the class is `virginica` (model is glm)
 * POST /prediction_class - 2 parameters: sepal_length & petal_length, predict the class (model is randomForest)
 
 # Source files
 
 The following files are included in the project:
-* plumber.R - API using plumber
+* train_model.R - script to train the model; a RandomForest model is trained to predict the species of iris
+* plumber.R - API using plumber; to predict the species, a pretrained model is load
 * run_it.R - script to start the API using plumber
 
 # Usage
